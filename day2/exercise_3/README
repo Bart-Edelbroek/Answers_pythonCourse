@@ -1,0 +1,125 @@
+3a)
+
+Rewrote the matmult.py to be able to output time with kernprof -l -v:
+
+_____________________________________________________________________________________________________________
+Total time: 0.233512 s
+File: matmult.py
+Function: gen_x at line 6
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+     6                                           @profile
+     7                                           def gen_x(N):
+     8         1          2.0      2.0      0.0  	X = []
+     9       251        196.0      0.8      0.1  	for i in range(N):
+    10       250     233314.0    933.3     99.9  		X.append([random.randint(0,100) for r in range(N)])
+    11         1          0.0      0.0      0.0  	return X
+
+Total time: 0.232477 s
+File: matmult.py
+Function: gen_y at line 14
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    14                                           @profile
+    15                                           def gen_y(N):
+    16         1          0.0      0.0      0.0  	Y = []
+    17       251        162.0      0.6      0.1  	for i in range(N):
+    18       250     232315.0    929.3     99.9  		Y.append([random.randint(0,100) for r in range(N+1)])
+    19         1          0.0      0.0      0.0  	return Y
+
+Total time: 0.00043 s
+File: matmult.py
+Function: res_gen at line 22
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    22                                           @profile
+    23                                           def res_gen(N):
+    24         1          0.0      0.0      0.0  	result = []
+    25       251         52.0      0.2     12.1  	for i in range(N):
+    26       250        377.0      1.5     87.7  		result.append([0] * (N+1))
+    27         1          1.0      1.0      0.2  	return result
+
+Total time: 13.3971 s
+File: matmult.py
+Function: res_calc at line 30
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    30                                           @profile
+    31                                           def res_calc():
+    32       251         69.0      0.3      0.0  	for i in range(len(X)):
+    33                                               # iterate through columns of Y
+    34     63000      16735.0      0.3      0.1  		for j in range(len(Y[0])):
+    35                                               	# iterate through rows of Y
+    36  15750250    4119083.0      0.3     30.7  			for k in range(len(Y)):
+    37  15687500    9261174.0      0.6     69.1  				result[i][j] += X[i][k] * Y[k][j]
+    38         1          0.0      0.0      0.0  	return result
+_____________________________________________________________________________________________________________
+
+The operation that takes the longest time is iterating through rows of Y and calculating the matrix product. Other operations that take long time are the generation of random numbers 250 times.
+
+I cannot run the memory_profiler unless if I scale down the N, in which case everything seems to draw the same amount of memory:
+
+_____________________________________________________________________________________________________________
+Line #    Mem usage    Increment   Line Contents
+================================================
+     6   37.125 MiB   37.125 MiB   @profile
+     7                             def gen_x(N):
+     8   37.125 MiB    0.000 MiB   	X = []
+     9   37.129 MiB    0.000 MiB   	for i in range(N):
+    10   37.129 MiB    0.004 MiB   		X.append([random.randint(0,100) for r in range(N)])
+    11   37.129 MiB    0.000 MiB   	return X
+
+
+Filename: matmult.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+    14   37.129 MiB   37.129 MiB   @profile
+    15                             def gen_y(N):
+    16   37.129 MiB    0.000 MiB   	Y = []
+    17   37.129 MiB    0.000 MiB   	for i in range(N):
+    18   37.129 MiB    0.000 MiB   		Y.append([random.randint(0,100) for r in range(N+1)])
+    19   37.129 MiB    0.000 MiB   	return Y
+
+
+Filename: matmult.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+    22   37.129 MiB   37.129 MiB   @profile
+    23                             def res_gen(N):
+    24   37.129 MiB    0.000 MiB   	result = []
+    25   37.129 MiB    0.000 MiB   	for i in range(N):
+    26   37.129 MiB    0.000 MiB   		result.append([0] * (N+1))
+    27   37.129 MiB    0.000 MiB   	return result
+
+
+Filename: matmult.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+    30   37.129 MiB   37.129 MiB   @profile
+    31                             def res_calc():
+    32   37.129 MiB    0.000 MiB   	for i in range(len(X)):
+    33                                 # iterate through columns of Y
+    34   37.129 MiB    0.000 MiB   		for j in range(len(Y[0])):
+    35                                 	# iterate through rows of Y
+    36   37.129 MiB    0.000 MiB   			for k in range(len(Y)):
+    37   37.129 MiB    0.000 MiB   				result[i][j] += X[i][k] * Y[k][j]
+    38   37.129 MiB    0.000 MiB   	return result
+_____________________________________________________________________________________________________________
+
+
+
+
+
+
+3b)
+The step that seems to take the longest is the "factors = factorize(n,primes)" in the fast_phi function.
+
+3c)
+What seems to take unnecessary amounts of time is doing the matrix calculation in a for-loop, 125250 times. Instead I used the function np.matmul(), to get down to 862745 function calls (847454 primitive calls) in 0.496 seconds. 
