@@ -3,19 +3,15 @@ import random
 import numpy as np
 
 # NxN matrix
-#@profile
+@profile
 def gen_x(N):
-	X = []
-	for i in range(N):
-		X.append([random.randint(0,100) for r in range(N)])
+	X = np.random.rand(N, N)
 	return X
 
 # Nx(N+1) matrix
-#@profile
+@profile
 def gen_y(N):
-	Y = []
-	for i in range(N):
-		Y.append([random.randint(0,100) for r in range(N+1)])
+	Y = np.random.rand(N, (N+1))
 	return Y
 
 """
@@ -43,7 +39,7 @@ def res_calc():
 
 """
 
-#@profile
+@profile
 def numpy_matmul():
 	a = np.array(X)
 	b = np.array(Y)
@@ -63,5 +59,4 @@ r2 = numpy_matmul()
 #    print(r)
 
 print("numpy")
-for r in r2:
-	print(r2)
+print(r2)
